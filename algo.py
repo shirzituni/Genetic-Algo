@@ -69,26 +69,6 @@ def sort_list(input_list):
     return input_list
 
 
-def create_first_gen(matrix_input, inequality_signs_input):
-    scores_list = []
-    boards = []
-    for i in range(100):
-        temp_matrix = matrix_input.copy()
-        for row in temp_matrix:
-            generate_row(row, len(row))
-            boards.append(temp_matrix)
-
-        # print("matrix", i, "\n", temp_matrix)
-        # print(calculate_duplicates_row_col(temp_matrix))
-        # print("inequality_signs" , calculate_uncorrect_inequality_signs(temp_matrix, inequality_signs_input))
-        score = calculate_mismatch(temp_matrix, inequality_signs_input)
-        # print(temp_matrix, score)
-        scores_list.append((temp_matrix, score))
-
-    sort_list(scores_list)
-    return boards, scores_list
-
-
 def calculate_mismatch(matrix_input, inequality_signs_input):
     black_points = 0
     # black point for mismatch for the inequality sign
@@ -104,9 +84,9 @@ def calculate_uncorrect_inequality_signs(matrix_input, inequality_signs_input):
     return uncorrect
 
 
-def calculate_duplicates_row_col(matrix):
-    duplicates_in_rows = [len(matrix[i]) - len(np.unique(matrix[i])) for i in range(matrix[0].size)]
-    matrix_t = matrix.transpose()
+def calculate_duplicates_row_col(matrix_input):
+    duplicates_in_rows = [len(matrix_input[i]) - len(np.unique(matrix_input[i])) for i in range(matrix_input[0].size)]
+    matrix_t = matrix_input.transpose()
     duplicates_in_cols = [len(matrix_t[i]) - len(np.unique(matrix_t[i])) for i in range(matrix_t[0].size)]
 
     total_dups = 0
@@ -155,16 +135,30 @@ def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_inpu
         result_matrices.append((new_matrix_hybridization, score))
 
     sort_list(result_matrices)
-
-    print(result_matrices, "\n", len(result_matrices))
-
-
+    #print("\n")
+    #print(result_matrices, "\n", len(result_matrices))
     return result_matrices
 
-#def create_new_generation_specific_range(number_of_hybridization , part_of_list_matrices):
+def create_first_gen(matrix_input, inequality_signs_input):
+    scores_list = []
+    boards = []
+    for i in range(100):
+        temp_matrix = matrix_input.copy()
+        for row in temp_matrix:
+            generate_row(row, len(row))
+            boards.append(temp_matrix)
 
+        # print("matrix", i, "\n", temp_matrix)
+        # print(calculate_duplicates_row_col(temp_matrix))
+        # print("inequality_signs" , calculate_uncorrect_inequality_signs(temp_matrix, inequality_signs_input))
+        score = calculate_mismatch(temp_matrix, inequality_signs_input)
+        print(temp_matrix, "duplicates: ", calculate_duplicates_row_col(temp_matrix))
 
+        # print(temp_matrix, score)
+        scores_list.append((temp_matrix, score))
 
+    sort_list(scores_list)
+    return boards, scores_list
 
 def create_new_generation(list_of_matrixes):
     # take the the best 10 matrix
