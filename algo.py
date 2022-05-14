@@ -2,25 +2,32 @@ import random
 
 import numpy as np
 
+NUMBER_OF_DIGITS_ROW = 2
 
 def get_data(path):
     with open(path) as f:
         lines = f.readlines()
-    n = int(lines[0])
-    digits = int(lines[1])
-    cor_values = []
-    for i in range(2, 2 + digits):
+    matrix_size = int(lines[0])
+    number_of_digits = int(lines[1])
+    coordinates_value = []
+    for i in range(NUMBER_OF_DIGITS_ROW, NUMBER_OF_DIGITS_ROW + number_of_digits):
         temp_set = []
         for j in lines[i]:
             if j != ' ' and j != '\n':
                 temp_set.append(int(j))
-        cor_values.append(temp_set)
-    signs_values = []
-    for i in range(3 + digits, len(lines)):
+        coordinates_value.append(temp_set)
+    inequality_signs = []
+
+    for i in range(3 + number_of_digits, len(lines)):
+        temp_set = []
         for j in lines[i]:
             if j != ' ' and j != '\n':
-                signs_values.append(int(j))
-    return n, cor_values, signs_values
+                temp_set.append(int(j))
+        inequality_signs.append(temp_set)
+
+    print(inequality_signs)
+    print(coordinates_value)
+    return matrix_size, coordinates_value, inequality_signs
 
 
 def build_matrix(n, cor_values):
