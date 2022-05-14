@@ -139,7 +139,7 @@ def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_inpu
     #print(result_matrices, "\n", len(result_matrices))
     return result_matrices
 
-def create_first_gen(matrix_input, inequality_signs_input):
+def (matrix_input, inequality_signs_input):
     scores_list = []
     boards = []
     for i in range(100):
