@@ -104,51 +104,6 @@ def calculate_duplicates_row_col(matrix):
     return total_dups
 
 
-'''
-    for row in matrix:
-        for column in matrix:
-            temp = matrix[row,column]
-            k = column + 1
-            for k in matrix:
-                if temp == matrix[row,k]:
-                    count += 1
-                    break
-            g = column + 1
-            for g in matrix:
-                if (temp == matrix[g,column]):
-                    count += 1
-                    break
-                    
-
-    if count > 0:
-        print("No\n")
-    else:
-        print("Yes\n")
-        print(duplicates_list)
-        print(duplicates_list)
-                    -----
-            #print(matrix[row,column])
-            if len(column) == matrix_size:
-                break
-            if matrix[row, column] == matrix[row, column+1]:
-                count = count + 1
-                duplicates_list.append(matrix[row, column])
-            else:
-                if row == matrix_size:
-                    break
-                if matrix[row, column] == matrix[row+1, column]:
-                    duplicates_list.append(matrix[row, column])
-                    count = count + 1
-                    ---
-    for row in matrix:
-        print ("row", row)
-        for index in row:
-            print(np.array(matrix)[0])
-            for i in range(1,matrix_size):
-                #if (matrix[i] == matrix)
-                continue
-'''
-
 if __name__ == "__main__":
     matrix_size, coordinates_values, inequality_signs = get_data('example.txt')
     matrix = build_matrix(matrix_size, coordinates_values)
