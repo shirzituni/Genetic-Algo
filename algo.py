@@ -72,7 +72,7 @@ def sort_list(input_list):
 def calculate_mismatch(matrix_input, inequality_signs_input):
     black_points = 0
     # black point for mismatch for the inequality sign
-    return calculate_uncorrect_inequality_signs(matrix_input, inequality_signs_input)
+    return calculate_uncorrect_inequality_signs(matrix_input, inequality_signs_input) + calculate_duplicates_row_col(matrix_input)
 
 
 def calculate_uncorrect_inequality_signs(matrix_input, inequality_signs_input):
@@ -102,10 +102,18 @@ def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_inpu
 
     # hybridization between the top-10
     for i in range(10):
+        father_matrix_index = randint(0, len(top_ten_score_matrices) - 1)
+        mother_matrix_index = randint(0, len(top_ten_score_matrices) - 1)
         new_matrix_hybridization_from_top_ten = np.zeros(shape=(matrix_size, matrix_size), dtype='int')
         for j in range(matrix_size):
-            new_matrix_hybridization_from_top_ten[j] = \
-                top_ten_score_matrices[randint(0, len(top_ten_score_matrices) - 1)][0][randint(0, matrix_size - 1)]
+            random_row_index = randint(0, matrix_size - 1)
+            random_parent = (randint(0, len(top_ten_score_matrices) - 1)) % 2
+            if random_parent == 1:
+                new_matrix_hybridization_from_top_ten[j] = \
+                    top_ten_score_matrices[mother_matrix_index][0][random_row_index]
+            else:
+                new_matrix_hybridization_from_top_ten[j] = \
+                    top_ten_score_matrices[father_matrix_index][0][random_row_index]
             # calculate the score of the matrix
         score = calculate_mismatch(new_matrix_hybridization_from_top_ten, inequality_signs_input)
         result_matrices.append((new_matrix_hybridization_from_top_ten, score))
@@ -115,10 +123,19 @@ def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_inpu
 
     for i in range(80):
         new_matrix_hybridization = np.zeros(shape=(matrix_size, matrix_size), dtype='int')
+        father_matrix_index = randint(0, len(list_of_matrices_part_1) - 1)
+        mother_matrix_index = randint(0, len(list_of_matrices_part_1) - 1)
         for j in range(matrix_size):
-            new_matrix_hybridization[j] = \
-                list_of_matrices_part_1[randint(0, len(list_of_matrices_part_1) - 1)][0][randint(0, matrix_size) - 1]
-            # calculate the score of the matrix
+            random_row_index = randint(0, matrix_size - 1)
+            random_parent = (randint(0, len(list_of_matrices_part_1) - 1)) % 2
+            if random_parent == 1:
+                new_matrix_hybridization[j] = \
+                    list_of_matrices_part_1[mother_matrix_index][0][random_row_index]
+                # calculate the score of the matrix
+            else:
+                new_matrix_hybridization[j] = \
+                    list_of_matrices_part_1[father_matrix_index][0][random_row_index]
+
         score = calculate_mismatch(new_matrix_hybridization, inequality_signs_input)
         result_matrices.append((new_matrix_hybridization, score))
 
@@ -126,6 +143,17 @@ def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_inpu
     # print("\n")
     # print(result_matrices, "\n", len(result_matrices))
     return result_matrices
+
+
+def create_mutation(list_of_matrices_and_score, matrix_size, inequality_signs_input):
+    print(list_of_matrices_and_score[0][0])
+    for index in list_of_matrices_and_score:
+        i = 0
+        for row in list_of_matrices_and_score[0][0]:
+            i += 1
+            for cell in row:
+                print(cell)
+
 
 
 def create_first_gen(matrix_input, inequality_signs_input):
@@ -147,13 +175,14 @@ def create_first_gen(matrix_input, inequality_signs_input):
         scores_list.append((temp_matrix, score))
 
     sort_list(scores_list)
-    print(scores_list)
+    #print(scores_list)
     return boards, scores_list
 
 
-def create_new_generation(list_of_matrixes):
-    # take the the best 10 matrix
-    best_from_previous_generation = list_of_matrixes[0:10]
+def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_signs_input):
+    matrices_after_hybrid = hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_input)
+    #add motation
+    return matrices_after_hybrid
 
 
 if __name__ == "__main__":
@@ -162,6 +191,14 @@ if __name__ == "__main__":
     # calculate_mismatch(matrix, inequality_signs, coordinates_values)
 
     # print(f"original matrix: \n {matrix}")
-    boards, matrix_scores_list = create_first_gen(matrix, inequality_signs)
+    boards, first_gen = create_first_gen(matrix, inequality_signs)
     # new_generation = create_new_generation(matrix_scores_list)
-    hybridization(matrix_scores_list, matrix_size, inequality_signs)
+    hybridization(first_gen, matrix_size, inequality_signs)
+    new_gen_score_list = create_new_generation(first_gen, matrix_size, inequality_signs)
+    '''
+    for i in range(1,5):
+        for i in range(0,100):
+            new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs)
+        print(new_gen_score_list[:1])
+    '''
+    create_mutation(new_gen_score_list, matrix_size, inequality_signs)
