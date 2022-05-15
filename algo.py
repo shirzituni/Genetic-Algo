@@ -72,8 +72,7 @@ def sort_list(input_list):
 def calculate_mismatch(matrix_input, inequality_signs_input):
     black_points = 0
     # black point for mismatch for the inequality sign
-    return calculate_uncorrect_inequality_signs(matrix_input, inequality_signs_input) + \
-           calculate_uncorrect_inequality_signs(matrix_input, inequality_signs_input)
+    return calculate_uncorrect_inequality_signs(matrix_input, inequality_signs_input)
 
 
 def calculate_uncorrect_inequality_signs(matrix_input, inequality_signs_input):
@@ -85,25 +84,14 @@ def calculate_uncorrect_inequality_signs(matrix_input, inequality_signs_input):
 
 
 def calculate_duplicates_row_col(matrix_input):
-    duplicates_in_rows = [len(matrix_input[i]) - len(np.unique(matrix_input[i])) for i in range(matrix_input[0].size)]
     matrix_t = matrix_input.transpose()
     duplicates_in_cols = [len(matrix_t[i]) - len(np.unique(matrix_t[i])) for i in range(matrix_t[0].size)]
-
-    total_dups = 0
-    for dup in duplicates_in_rows:
-        total_dups += dup
-
-    for dup in duplicates_in_cols:
-        total_dups += dup
-
-    # if total_dups != 0:
-    #    print("Yes\n", total_dups)
-
+    total_dups = sum(duplicates_in_cols)
     return total_dups
 
 
 def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_input):
-    #list_of_matrixes.reverse()
+    # list_of_matrixes.reverse()
     result_matrices = []
 
     list_of_matrices_and_score = list_of_matrices_and_score[0:90]
@@ -128,18 +116,19 @@ def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_inpu
     for i in range(80):
         new_matrix_hybridization = np.zeros(shape=(matrix_size, matrix_size), dtype='int')
         for j in range(matrix_size):
-            new_matrix_hybridization[j] =\
+            new_matrix_hybridization[j] = \
                 list_of_matrices_part_1[randint(0, len(list_of_matrices_part_1) - 1)][0][randint(0, matrix_size) - 1]
             # calculate the score of the matrix
         score = calculate_mismatch(new_matrix_hybridization, inequality_signs_input)
         result_matrices.append((new_matrix_hybridization, score))
 
     sort_list(result_matrices)
-    #print("\n")
-    #print(result_matrices, "\n", len(result_matrices))
+    # print("\n")
+    # print(result_matrices, "\n", len(result_matrices))
     return result_matrices
 
-def (matrix_input, inequality_signs_input):
+
+def create_first_gen(matrix_input, inequality_signs_input):
     scores_list = []
     boards = []
     for i in range(100):
@@ -151,21 +140,20 @@ def (matrix_input, inequality_signs_input):
         # print("matrix", i, "\n", temp_matrix)
         # print(calculate_duplicates_row_col(temp_matrix))
         # print("inequality_signs" , calculate_uncorrect_inequality_signs(temp_matrix, inequality_signs_input))
-        score = calculate_mismatch(temp_matrix, inequality_signs_input)
-        print(temp_matrix, "duplicates: ", calculate_duplicates_row_col(temp_matrix))
+        score = calculate_mismatch(temp_matrix, inequality_signs_input) + calculate_duplicates_row_col(temp_matrix)
+         #print(f"{temp_matrix}, duplicates: {score}")
 
         # print(temp_matrix, score)
         scores_list.append((temp_matrix, score))
 
     sort_list(scores_list)
+    print(scores_list)
     return boards, scores_list
+
 
 def create_new_generation(list_of_matrixes):
     # take the the best 10 matrix
-     best_from_previous_generation = list_of_matrixes[0:10]
-
-
-
+    best_from_previous_generation = list_of_matrixes[0:10]
 
 
 if __name__ == "__main__":
@@ -175,5 +163,5 @@ if __name__ == "__main__":
 
     # print(f"original matrix: \n {matrix}")
     boards, matrix_scores_list = create_first_gen(matrix, inequality_signs)
-    #new_generation = create_new_generation(matrix_scores_list)
-    hybridization(matrix_scores_list, matrix_size,inequality_signs)
+    # new_generation = create_new_generation(matrix_scores_list)
+    hybridization(matrix_scores_list, matrix_size, inequality_signs)
