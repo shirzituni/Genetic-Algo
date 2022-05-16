@@ -222,6 +222,12 @@ if __name__ == "__main__":
     new_gen_score_list = create_new_generation(first_gen, matrix_size, inequality_signs,coordinates_values_given_numbers)
 
     # for i in range(1,5):
-    for i in range(0, 1000):
+    for i in range(0, 350):
+        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,coordinates_values_given_numbers)
+    # ********
+    for i in range(0, 350):
+        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,coordinates_values_given_numbers)
+    #  ********
+    for i in range(0, 350):
         new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,coordinates_values_given_numbers)
     print(new_gen_score_list[:1])
