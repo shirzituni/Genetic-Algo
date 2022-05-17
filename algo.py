@@ -10,7 +10,7 @@ NUMBER_OF_DIGITS_ROW = 2
 def get_data(path):
     with open(path) as f:
         lines = f.readlines()
-    matrix_size = int(lines[0])
+    matrix_size_input = int(lines[0])
     number_of_digits = int(lines[1])
     coordinates_values = []
     for i in range(NUMBER_OF_DIGITS_ROW, NUMBER_OF_DIGITS_ROW + number_of_digits):
@@ -20,18 +20,18 @@ def get_data(path):
             if j != ' ' and j != '\n':
                 temp_set.append(int(j))
         coordinates_values.append(temp_set)
-    inequality_signs = []
+    inequality_signs_list = []
     number_rows_before_coordinate = 3 + number_of_digits
     for i in range(number_rows_before_coordinate, len(lines)):
         temp_set = []
         for j in lines[i]:
             if j != ' ' and j != '\n':
                 temp_set.append(int(j))
-        inequality_signs.append(temp_set)
+        inequality_signs_list.append(temp_set)
 
     # print(inequality_signs)
     # print(coordinates_values)
-    return matrix_size, coordinates_values, inequality_signs
+    return matrix_size_input, coordinates_values, inequality_signs_list
 
 
 def build_matrix(matrix_size, coordinates_value):
@@ -58,20 +58,21 @@ def generate_row(row, n):
 
 
 def sort_list(input_list):
-    # Sort the list
-    Len = len(input_list)
-    for i in range(0, Len):
-        for j in range(0, (Len - i - 1)):
-            if input_list[j][1] > input_list[j + 1][1]:
-                temp = input_list[j]
-                input_list[j] = input_list[j + 1]
-                input_list[j + 1] = temp
-    return input_list
+    # # Sort the list
+    # Len = len(input_list)
+    # for i in range(0, Len):
+    #     for j in range(0, (Len - i - 1)):
+    #         if input_list[j][1] > input_list[j + 1][1]:
+    #             temp = input_list[j]
+    #             input_list[j] = input_list[j + 1]
+    #             input_list[j + 1] = temp
+    # return input_list
+
+    return sorted(input_list, key=lambda x: x[1])
 
 
 def calculate_mismatch(matrix_input, inequality_signs_input):
-    return calculate_incorrect_inequality_signs(matrix_input, inequality_signs_input) + \
-           calculate_duplicates_row_col(matrix_input)
+    return calculate_incorrect_inequality_signs(matrix_input, inequality_signs_input)
 
 
 def calculate_incorrect_inequality_signs(matrix_input, inequality_signs_input):
@@ -83,9 +84,11 @@ def calculate_incorrect_inequality_signs(matrix_input, inequality_signs_input):
 
 
 def calculate_duplicates_row_col(matrix_input):
+    duplicates_in_rows = [len(matrix_input[i]) - len(np.unique(matrix_input[i])) for i in range(matrix_input[0].size)]
     matrix_t = matrix_input.transpose()
     duplicates_in_cols = [len(matrix_t[i]) - len(np.unique(matrix_t[i])) for i in range(matrix_t[0].size)]
-    total_dups = sum(duplicates_in_cols)
+    total_dups = sum(duplicates_in_cols) + sum(duplicates_in_rows)
+    matrix_t = matrix_input.transpose()
     return total_dups
 
 
@@ -105,11 +108,12 @@ def hybridization(list_of_matrices, matrix_size_input, inequality_signs_input):
                 new_matrix_hybridization_from_top_ten[j] = \
                     list_of_matrices[father_matrix_index][0][random_row_index]
         # calculate the score of the matrix
-
-        score = 0
+        score = calculate_incorrect_inequality_signs(new_matrix_hybridization_from_top_ten, inequality_signs_input)
+        calculate_duplicates_row_col(new_matrix_hybridization_from_top_ten)
+        # score = calculate_mismatch(new_matrix_hybridization_from_top_ten, inequality_signs_input) + \
+        #         calculate_duplicates_row_col(new_matrix_hybridization_from_top_ten)
         result_matrices.append((new_matrix_hybridization_from_top_ten, score))
     return result_matrices
-
 
 '''
 def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_input):
@@ -161,15 +165,21 @@ def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_inpu
 
 
 def create_mutation(matrices_to_mutate, matrix_size, coordinates_value):
-    for matrix_index, _ in matrices_to_mutate:
-        for row_idx in range(matrix_size):
-            for col_idx in range(matrix_size):
-                random_num = randint(1, 10)
+    knows_indexes = []
+    for couple in coordinates_value:
+        knows_indexes.append(couple[1])
+    for curr_matrix, _ in matrices_to_mutate:
+        curr_matrix = curr_matrix.T
+        for row in range(matrix_size):
+            if row + 1 not in knows_indexes:
+                random_num = randint(0, 1)
                 # probability of a half to mutation
-                if random_num < 5:
-                    matrix_index[row_idx, col_idx] = randint(1, matrix_size)
-                for number_set in coordinates_value:
-                    matrix_index[number_set[0] - 1, number_set[1] - 1] = number_set[2]
+                if random_num == 0:
+                    pass
+                else:
+                    curr_matrix[row] = generate_row([0] * matrix_size, matrix_size)
+        curr_matrix = curr_matrix.T
+
     return matrices_to_mutate
 
 
@@ -181,7 +191,9 @@ def create_first_gen(matrix_input, inequality_signs_input):
         for row in temp_matrix:
             generate_row(row, len(row))
             boards.append(temp_matrix)
-        score = calculate_mismatch(temp_matrix, inequality_signs_input) + calculate_duplicates_row_col(temp_matrix)
+        score = calculate_incorrect_inequality_signs(temp_matrix,
+                                                     inequality_signs_input) + calculate_duplicates_row_col(temp_matrix)
+        # score = calculate_mismatch(temp_matrix, inequality_signs_input) + calculate_duplicates_row_col(temp_matrix)
         scores_list.append((temp_matrix, score))
 
     sort_list(scores_list)
@@ -201,7 +213,6 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
     hybrid_top_forty_matrices = hybridization(forty_top_score_matrices, matrix_size, inequality_signs_input)
     hybrid_top_forty_matrices_2 = hybridization(forty_top_score_matrices, matrix_size, inequality_signs_input)
 
-
     # create mutation
     new_gen_matrices.extend(create_mutation(hybrid_top_ten_matrices, matrix_size, coordinates_value))
     new_gen_matrices.extend(create_mutation(hybrid_top_forty_matrices, matrix_size, coordinates_value))
@@ -209,25 +220,35 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
 
     result_matrices_with_score = []
     for mutation_matrix, _ in new_gen_matrices:
-        score = calculate_mismatch(mutation_matrix, inequality_signs_input)
+        score = calculate_incorrect_inequality_signs(mutation_matrix, inequality_signs_input) + calculate_duplicates_row_col(mutation_matrix)
+        # score = calculate_mismatch(mutation_matrix, inequality_signs_input) + \
+        #         calculate_duplicates_row_col(mutation_matrix)
         result_matrices_with_score.append((mutation_matrix, score))
-        #print(result_matrices_with_score)
-    return new_gen_matrices
+        # print(result_matrices_with_score)
+    return sort_list(new_gen_matrices)
 
 
 if __name__ == "__main__":
     matrix_size, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
     matrix = build_matrix(matrix_size, coordinates_values_given_numbers)
     boards, first_gen = create_first_gen(matrix, inequality_signs)
-    new_gen_score_list = create_new_generation(first_gen, matrix_size, inequality_signs,coordinates_values_given_numbers)
+    new_gen_score_list = create_new_generation(first_gen, matrix_size, inequality_signs,
+                                               coordinates_values_given_numbers)
 
-    # for i in range(1,5):
     for i in range(0, 350):
-        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,coordinates_values_given_numbers)
+        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,
+                                                   coordinates_values_given_numbers)
     # ********
+    print(new_gen_score_list)
+    # print(new_gen_score_list[:1])
+
     for i in range(0, 350):
-        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,coordinates_values_given_numbers)
+        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,
+                                                   coordinates_values_given_numbers)
     #  ********
+    # print(new_gen_score_list[:1])
+
     for i in range(0, 350):
-        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,coordinates_values_given_numbers)
+        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,
+                                                   coordinates_values_given_numbers)
     print(new_gen_score_list[:1])
