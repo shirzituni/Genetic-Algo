@@ -43,7 +43,7 @@ def build_matrix(matrix_size, coordinates_value):
 
 def generate_row(row, n):
     digits = [i for i in range(1, n + 1)]
-    empty_indexes = [i for i in range(5)]
+    empty_indexes = [i for i in range(matrix_size)]
     for i in range(n):
         if row[i] != 0:
             digits.remove(row[i])
@@ -83,10 +83,22 @@ def calculate_incorrect_inequality_signs(matrix_input, inequality_signs_input):
 
 
 def calculate_duplicates_row_col(matrix_input):
+    duplicates_in_rows = [len(matrix_input[i]) - len(np.unique(matrix_input[i])) for i in range(matrix_input[0].size)]
     matrix_t = matrix_input.transpose()
     duplicates_in_cols = [len(matrix_t[i]) - len(np.unique(matrix_t[i])) for i in range(matrix_t[0].size)]
-    total_dups = sum(duplicates_in_cols)
+
+    total_dups = 0
+    for dup in duplicates_in_rows:
+        total_dups += dup
+
+    for dup in duplicates_in_cols:
+        total_dups += dup
+
+    # if total_dups != 0:
+    #    print("Yes\n", total_dups)
+
     return total_dups
+
 
 
 def hybridization(list_of_matrices, matrix_size_input, inequality_signs_input):
@@ -166,7 +178,7 @@ def create_mutation(matrices_to_mutate, matrix_size, coordinates_value):
             for col_idx in range(matrix_size):
                 random_num = randint(1, 10)
                 # probability of a half to mutation
-                if random_num < 5:
+                if random_num < 2:
                     matrix_index[row_idx, col_idx] = randint(1, matrix_size)
                 for number_set in coordinates_value:
                     matrix_index[number_set[0] - 1, number_set[1] - 1] = number_set[2]
@@ -181,7 +193,7 @@ def create_first_gen(matrix_input, inequality_signs_input):
         for row in temp_matrix:
             generate_row(row, len(row))
             boards.append(temp_matrix)
-        score = calculate_mismatch(temp_matrix, inequality_signs_input) + calculate_duplicates_row_col(temp_matrix)
+        score = calculate_mismatch(temp_matrix, inequality_signs_input)
         scores_list.append((temp_matrix, score))
 
     sort_list(scores_list)
@@ -222,6 +234,6 @@ if __name__ == "__main__":
     new_gen_score_list = create_new_generation(first_gen, matrix_size, inequality_signs,coordinates_values_given_numbers)
 
     # for i in range(1,5):
-    for i in range(0, 1000):
+    for i in range(0, 10):
         new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,coordinates_values_given_numbers)
     print(new_gen_score_list[:1])
