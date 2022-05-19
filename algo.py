@@ -1,4 +1,5 @@
 import random
+from pprint import pprint
 
 import numpy as np
 from random import randint
@@ -58,15 +59,16 @@ def generate_row(row, n):
 
 
 def sort_list(input_list):
-    # Sort the list
-    Len = len(input_list)
-    for i in range(0, Len):
-        for j in range(0, (Len - i - 1)):
-            if input_list[j][1] > input_list[j + 1][1]:
-                temp = input_list[j]
-                input_list[j] = input_list[j + 1]
-                input_list[j + 1] = temp
-    return input_list
+    # # Sort the list
+    # Len = len(input_list)
+    # for i in range(0, Len):
+    #     for j in range(0, (Len - i - 1)):
+    #         if input_list[j][1] > input_list[j + 1][1]:
+    #             temp = input_list[j]
+    #             input_list[j] = input_list[j + 1]
+    #             input_list[j + 1] = temp
+    # return input_list
+    return sorted(input_list, key=lambda x: x[1])
 
 
 def calculate_mismatch(matrix_input, inequality_signs_input):
@@ -100,7 +102,6 @@ def calculate_duplicates_row_col(matrix_input):
     return total_dups
 
 
-
 def hybridization(list_of_matrices, matrix_size_input, inequality_signs_input):
     result_matrices = []
     for i in range(len(list_of_matrices)):
@@ -117,8 +118,7 @@ def hybridization(list_of_matrices, matrix_size_input, inequality_signs_input):
                 new_matrix_hybridization_from_top_ten[j] = \
                     list_of_matrices[father_matrix_index][0][random_row_index]
         # calculate the score of the matrix
-
-        score = 0
+        score = calculate_mismatch(new_matrix_hybridization_from_top_ten, inequality_signs_input)
         result_matrices.append((new_matrix_hybridization_from_top_ten, score))
     return result_matrices
 
@@ -186,7 +186,7 @@ def create_mutation(matrices_to_mutate, matrix_size, coordinates_value):
 
 
 def create_first_gen(matrix_input, inequality_signs_input):
-    scores_list = []
+    matrix_and_score_list = []
     boards = []
     for i in range(100):
         temp_matrix = matrix_input.copy()
@@ -194,10 +194,10 @@ def create_first_gen(matrix_input, inequality_signs_input):
             generate_row(row, len(row))
             boards.append(temp_matrix)
         score = calculate_mismatch(temp_matrix, inequality_signs_input)
-        scores_list.append((temp_matrix, score))
+        matrix_and_score_list.append((temp_matrix, score))
 
-    sort_list(scores_list)
-    return boards, scores_list
+    sort_list(matrix_and_score_list)
+    return matrix_and_score_list
 
 
 def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_signs_input, coordinates_value):
@@ -213,7 +213,6 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
     hybrid_top_forty_matrices = hybridization(forty_top_score_matrices, matrix_size, inequality_signs_input)
     hybrid_top_forty_matrices_2 = hybridization(forty_top_score_matrices, matrix_size, inequality_signs_input)
 
-
     # create mutation
     new_gen_matrices.extend(create_mutation(hybrid_top_ten_matrices, matrix_size, coordinates_value))
     new_gen_matrices.extend(create_mutation(hybrid_top_forty_matrices, matrix_size, coordinates_value))
@@ -223,17 +222,44 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
     for mutation_matrix, _ in new_gen_matrices:
         score = calculate_mismatch(mutation_matrix, inequality_signs_input)
         result_matrices_with_score.append((mutation_matrix, score))
-        #print(result_matrices_with_score)
-    return new_gen_matrices
+        # print(result_matrices_with_score)
+    result_matrices_with_score = sort_list(result_matrices_with_score)
+    return result_matrices_with_score
+
+
+def problem_of_convergence(curr_generation):
+    for i in range(100):
+        curr_generation = create_mutation(matrices_to_mutate=curr_generation, matrix_size=matrix_size,
+                                          coordinates_value=coordinates_values_given_numbers)
+    return curr_generation
 
 
 if __name__ == "__main__":
     matrix_size, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
-    matrix = build_matrix(matrix_size, coordinates_values_given_numbers)
-    boards, first_gen = create_first_gen(matrix, inequality_signs)
-    new_gen_score_list = create_new_generation(first_gen, matrix_size, inequality_signs,coordinates_values_given_numbers)
+    base_matrix = build_matrix(matrix_size, coordinates_values_given_numbers)
+    first_gen = create_first_gen(base_matrix, inequality_signs)
+    new_gen_score_list = create_new_generation(first_gen, matrix_size, inequality_signs,
+                                               coordinates_values_given_numbers)
 
-    # for i in range(1,5):
-    for i in range(0, 10):
-        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,coordinates_values_given_numbers)
-    print(new_gen_score_list[:1])
+    for i in range(0, 200):
+        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,
+                                                   coordinates_values_given_numbers)
+    print('-----------200th generation----------------')
+    pprint(new_gen_score_list)
+    print('----------------------------------')
+    new_gen_score_list = problem_of_convergence(new_gen_score_list)
+    print('-----------after solve convergence---------------')
+    print('----------------------------------')
+    for i in range(0, 200):
+        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,
+                                                   coordinates_values_given_numbers)
+    print('-----------400th generation----------------')
+    pprint(new_gen_score_list)
+    new_gen_score_list = problem_of_convergence(new_gen_score_list)
+    print('-----------after solve convergence---------------')
+    print('----------------------------------')
+    for i in range(0, 200):
+        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,
+                                                   coordinates_values_given_numbers)
+    print('-----------600th generation----------------')
+    pprint(new_gen_score_list)
