@@ -14,21 +14,20 @@ def get_data(path):
     coordinates_values = []
     for i in range(NUMBER_OF_DIGITS_ROW, NUMBER_OF_DIGITS_ROW + number_of_digits):
         temp_set = []
-        number_of_lines = len(lines) + 1
         for j in lines[i]:
             if j != ' ' and j != '\n':
                 temp_set.append(int(j))
         coordinates_values.append(temp_set)
-    inequality_signs = []
+    inequality_signs_input = []
     number_rows_before_coordinate = 3 + number_of_digits
     for i in range(number_rows_before_coordinate, len(lines)):
         temp_set = []
         for j in lines[i]:
             if j != ' ' and j != '\n':
                 temp_set.append(int(j))
-        inequality_signs.append(temp_set)
+        inequality_signs_input.append(temp_set)
 
-    return matrix_size, coordinates_values, inequality_signs
+    return matrix_size, coordinates_values, inequality_signs_input
 
 
 def build_matrix(matrix_size, coordinates_value):
@@ -110,21 +109,21 @@ def cross_over(list_of_matrices, matrix_size_input, inequality_signs_input):
 def solve_problem(curr_generation):
     """
     # 30 pick best
-    # 20 totaly new like first gen
+    # 20 totally new like first gen
     # =
     # 50 send to hybridization
     """
-    matrix_to_hyrid = []
+    matrix_to_hybrid = []
     next_generation = []
 
-    base_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
+    initial_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
     best_30 = curr_generation[:30]
-    new_20 = create_first_gen(base_matrix, inequality_signs)[:20]
-    matrix_to_hyrid.extend(best_30)
-    matrix_to_hyrid.extend(new_20)
+    new_20 = create_first_gen(initial_matrix, inequality_signs)[:20]
+    matrix_to_hybrid.extend(best_30)
+    matrix_to_hybrid.extend(new_20)
     next_generation.extend(best_30)
     next_generation.extend(new_20)
-    next_generation.extend(cross_over(list_of_matrices=matrix_to_hyrid, matrix_size_input=matrix_dim,
+    next_generation.extend(cross_over(list_of_matrices=matrix_to_hybrid, matrix_size_input=matrix_dim,
                                       inequality_signs_input=inequality_signs))
     return sort_list(next_generation)
 
@@ -192,18 +191,20 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
 
 
 if __name__ == "__main__":
+    # read the input
     matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
     base_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
     first_gen = create_first_gen(base_matrix, inequality_signs)
     new_generation_matrix_score = create_new_generation(first_gen, matrix_dim, inequality_signs)
-    main_loops = 5
-    loops = 300
+    num_of_rounds = 4
+    num_of_runs = 300
 
-    for j in range(main_loops):
-        for i in range(loops):
+    for loop in range(num_of_rounds):
+        for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs)
         print('-----------after 300th generation----------------')
+        # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
         print('-------------------------------------------------')
         print('------------trying to solver problem of convergence---------------')
