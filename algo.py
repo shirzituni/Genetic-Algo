@@ -39,6 +39,7 @@ def build_matrix(matrix_size, coordinates_value):
 
 def generate_row(row, n):
     digits = [i for i in range(1, n + 1)]
+    matrix_dim = row.size
     empty_indexes = [i for i in range(matrix_dim)]
     for i in range(n):
         if row[i] != 0:
@@ -106,7 +107,7 @@ def cross_over(list_of_matrices, matrix_size_input, inequality_signs_input):
     return result_matrices
 
 
-def solve_problem(curr_generation):
+def solve_problem(curr_generation, coordinates_values_given_numbers, inequality_signs):
     """
     # 30 pick best
     # 20 totally new like first gen
@@ -115,7 +116,7 @@ def solve_problem(curr_generation):
     """
     matrix_to_hybrid = []
     next_generation = []
-
+    matrix_dim = curr_generation[0][0][0].size
     initial_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
     best_30 = curr_generation[:30]
     new_20 = create_first_gen(initial_matrix, inequality_signs)[:20]
@@ -156,7 +157,7 @@ def create_first_gen(matrix_input, inequality_signs_input):
     return matrix_and_score_list
 
 
-def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_signs_input):
+def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_signs_input, test_type):
     new_gen_matrices = []
 
     # append the top-10 from the previous generation to the next
@@ -173,7 +174,8 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
     new_gen_matrices.extend(hybrid_top_forty_matrices)
     new_gen_matrices.extend(hybrid_top_forty_matrices_2)
 
-    """ Total:
+    """ 
+        Total:
         10 from the generation before
         10 created by cross_over
         40 created by cross_over
@@ -181,32 +183,137 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
         ---------------------
         100 new matrix for next generation
     """
-
-    result_matrices_with_score = []
-    for mutation_matrix, score in new_gen_matrices:
-        new_score = calculate_mismatch(mutation_matrix, inequality_signs_input)
-        result_matrices_with_score.append((mutation_matrix, new_score))
-    result_matrices_with_score = sort_list(result_matrices_with_score)
+    if test_type == 'lemarci_genetic':
+        after_optimize = optimize_result(new_gen_matrices, inequality_signs_input, matrix_size)
+        result_matrices_with_score = []
+        for mutation_matrix, score in after_optimize:
+            new_score = calculate_mismatch(mutation_matrix, inequality_signs_input)
+            result_matrices_with_score.append((mutation_matrix, new_score))
+        result_matrices_with_score = sort_list(result_matrices_with_score)
+        return result_matrices_with_score
+    else:
+        result_matrices_with_score = []
+        for mutation_matrix, score in new_gen_matrices:
+            new_score = calculate_mismatch(mutation_matrix, inequality_signs_input)
+            result_matrices_with_score.append((mutation_matrix, new_score))
+        result_matrices_with_score = sort_list(result_matrices_with_score)
     return result_matrices_with_score
 
 
-if __name__ == "__main__":
+def optimize_result(matrixes, inequality_signs, matrix_dim):
+    if type(matrixes) == tuple:
+        matrix_to_fix = matrixes[0]
+        for rule in inequality_signs:
+            row1, col1, row2, col2 = rule
+            if matrix_to_fix[row1 - 1][col1 - 1] < matrix_to_fix[row2 - 1][col2 - 1]:
+                temp = matrix_to_fix[row1 - 1][col1 - 1]
+                matrix_to_fix[row1 - 1][col1 - 1] = matrix_to_fix[row2 - 1][col2 - 1]
+                matrix_to_fix[row2 - 1][col2 - 1] = temp
+        score = calculate_mismatch(matrix_to_fix, inequality_signs)
+        return matrixes
+    else:
+        for curr_round in range(matrix_dim):
+            for matrix_score in matrixes:
+                matrix_to_fix, score = matrix_score
+                for rule in inequality_signs:
+                    row1, col1, row2, col2 = rule
+                    if matrix_to_fix[row1 - 1][col1 - 1] < matrix_to_fix[row2 - 1][col2 - 1]:
+                        temp = matrix_to_fix[row1 - 1][col1 - 1]
+                        matrix_to_fix[row1 - 1][col1 - 1] = matrix_to_fix[row2 - 1][col2 - 1]
+                        matrix_to_fix[row2 - 1][col2 - 1] = temp
+                score = calculate_mismatch(matrix_to_fix, inequality_signs)
+        return matrixes
+
+
+def regular_genetic():
     # read the input
     matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
+    # build base matrix and first generation
     base_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
     first_gen = create_first_gen(base_matrix, inequality_signs)
+
+    # create 2nd generation
     new_generation_matrix_score = create_new_generation(first_gen, matrix_dim, inequality_signs)
+
+    # run regular genetic algorithm with solving the convergence problem
     num_of_rounds = 4
     num_of_runs = 300
-
     for loop in range(num_of_rounds):
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
-                                                                inequality_signs)
+                                                                inequality_signs, 'regular_genetic')
         print('-----------after 300th generation----------------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
         print('-------------------------------------------------')
         print('------------trying to solver problem of convergence---------------')
-        new_generation_matrix_score = solve_problem(new_generation_matrix_score)
+        new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
+                                                    inequality_signs)
         print('------------after solver problem of convergence-------------------')
+
+
+def darvini_genetic():
+    # read the input
+    matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
+    # build base matrix and first generation
+    base_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
+    first_gen = create_first_gen(base_matrix, inequality_signs)
+
+    # create 2nd generation
+    new_generation_matrix_score = create_new_generation(first_gen, matrix_dim, inequality_signs, 'darvini_genetic')
+    # run darvini genetic algorithm
+    num_of_rounds = 4
+    num_of_runs = 300
+    for loop in range(num_of_rounds):
+        for gen in range(num_of_runs):
+            new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
+                                                                inequality_signs, 'darvini_genetic')
+        print('-----------after 300th generation----------------')
+        # pprint will print the matrix in readable way
+        pprint(new_generation_matrix_score[0])
+        print('-------------------------------------------------')
+        print('------------trying to solver problem of convergence---------------')
+        new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
+                                                    inequality_signs)
+        print('------------after solver problem of convergence-------------------')
+
+    final_matrix = new_generation_matrix_score[0]
+    matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
+    pprint(matrix_after_optimize)
+
+
+def lemarci_genetic():
+    # read the input
+    matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
+    # build base matrix and first generation
+    base_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
+    first_gen = create_first_gen(base_matrix, inequality_signs)
+
+    # create 2nd generation
+    new_generation_matrix_score = create_new_generation(first_gen, matrix_dim, inequality_signs, 'lemarci_genetic')
+
+    # run lemarci genetic algorithm
+    num_of_rounds = 4
+    num_of_runs = 300
+    for loop in range(num_of_rounds):
+        for gen in range(num_of_runs):
+            new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
+                                                                inequality_signs, 'lemarci_genetic')
+        print('-----------after 300th generation----------------')
+        # pprint will print the matrix in readable way
+        pprint(new_generation_matrix_score[0])
+        print('-------------------------------------------------')
+        print('------------trying to solver problem of convergence---------------')
+        new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
+                                                    inequality_signs)
+        print('------------after solver problem of convergence-------------------')
+
+    final_matrix = new_generation_matrix_score[0]
+    matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
+    pprint(matrix_after_optimize)
+
+
+if __name__ == "__main__":
+    # regular_genetic()
+    darvini_genetic()
+    # lemarci_genetic()
