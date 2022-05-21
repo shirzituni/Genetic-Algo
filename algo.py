@@ -3,7 +3,6 @@ from pprint import pprint
 
 import numpy as np
 from random import randint
-from operator import itemgetter
 
 NUMBER_OF_DIGITS_ROW = 2
 
@@ -44,7 +43,7 @@ def build_matrix(matrix_size, coordinates_value):
 
 def generate_row(row, n):
     digits = [i for i in range(1, n + 1)]
-    empty_indexes = [i for i in range(matrix_size)]
+    empty_indexes = [i for i in range(matrix_dim)]
     for i in range(n):
         if row[i] != 0:
             digits.remove(row[i])
@@ -89,17 +88,14 @@ def calculate_duplicates_row_col(matrix_input):
     matrix_t = matrix_input.transpose()
     duplicates_in_cols = [len(matrix_t[i]) - len(np.unique(matrix_t[i])) for i in range(matrix_t[0].size)]
 
-    total_dups = 0
+    total_duplicates = 0
     for dup in duplicates_in_rows:
-        total_dups += dup
+        total_duplicates += dup
 
     for dup in duplicates_in_cols:
-        total_dups += dup
+        total_duplicates += dup
 
-    # if total_dups != 0:
-    #    print("Yes\n", total_dups)
-
-    return total_dups
+    return total_duplicates
 
 
 def hybridization(list_of_matrices, matrix_size_input, inequality_signs_input):
@@ -123,65 +119,52 @@ def hybridization(list_of_matrices, matrix_size_input, inequality_signs_input):
     return result_matrices
 
 
-'''
-def hybridization(list_of_matrices_and_score, matrix_size, inequality_signs_input):
-    # list_of_matrixes.reverse()
-    result_matrices = []
-    top_ten_score_matrices = list_of_matrices_and_score[0:10]
-    # hybridization between the top-10
-    for i in range(10):
-        father_matrix_index = randint(0, len(top_ten_score_matrices) - 1)
-        mother_matrix_index = randint(0, len(top_ten_score_matrices) - 1)
-        new_matrix_hybridization_from_top_ten = np.zeros(shape=(matrix_size, matrix_size), dtype='int')
-        for j in range(matrix_size):
-            random_row_index = randint(0, matrix_size - 1)
-            random_parent = (randint(0, len(top_ten_score_matrices) - 1)) % 2
-            if random_parent == 1:
-                new_matrix_hybridization_from_top_ten[j] = \
-                    top_ten_score_matrices[mother_matrix_index][0][random_row_index]
-            else:
-                new_matrix_hybridization_from_top_ten[j] = \
-                    top_ten_score_matrices[father_matrix_index][0][random_row_index]
-            # calculate the score of the matrix
-        score = calculate_mismatch(new_matrix_hybridization_from_top_ten, inequality_signs_input)
-        result_matrices.append((new_matrix_hybridization_from_top_ten, score))
+def disrupt_generation(matrices_to_mutate, matrix_size, coordinates_value):
+    knows_indexes = []
+    for couple in coordinates_value:
+        knows_indexes.append(couple[1])
+    for curr_matrix, _ in matrices_to_mutate:
+        curr_matrix = curr_matrix.T
+        for row in range(matrix_size):
+            if row + 1 not in knows_indexes:
+                random_num = randint(0, 10)
+                # probability of a half to mutation
+                if random_num <= 3:
+                    pass
+                else:
+                    curr_matrix[row] = generate_row([0] * matrix_size, matrix_size)
+        curr_matrix = curr_matrix.T
+    return matrices_to_mutate
 
-    # hybridization between the top-40
-    forty_top_matrices = list_of_matrices_and_score[0:40]
 
-    for i in range(80):
-        new_matrix_hybridization = np.zeros(shape=(matrix_size, matrix_size), dtype='int')
-        father_matrix_index = randint(0, len(forty_top_matrices) - 1)
-        mother_matrix_index = randint(0, len(forty_top_matrices) - 1)
-        for j in range(matrix_size):
-            random_row_index = randint(0, matrix_size - 1)
-            random_parent = (randint(0, len(forty_top_matrices) - 1)) % 2
-            if random_parent == 1:
-                new_matrix_hybridization[j] = \
-                    forty_top_matrices[mother_matrix_index][0][random_row_index]
-                # calculate the score of the matrix
-            else:
-                new_matrix_hybridization[j] = \
-                    forty_top_matrices[father_matrix_index][0][random_row_index]
-
-        score = calculate_mismatch(new_matrix_hybridization, inequality_signs_input)
-        result_matrices.append((new_matrix_hybridization, score))
-
-    sort_list(result_matrices)
-    return result_matrices
-'''
+# def create_mutation(matrices_to_mutate, matrix_size, coordinates_value):
+#     knows_indexes = []
+#     for couple in coordinates_value:
+#         knows_indexes.append(couple[1])
+#     for curr_matrix, _ in matrices_to_mutate:
+#         curr_matrix = curr_matrix.T
+#         for row in range(matrix_size):
+#             if row + 1 not in knows_indexes:
+#                 random_num = randint(0, 10)
+#                 # probability of a half to mutation
+#                 if random_num <= 3:
+#                     pass
+#                 else:
+#                     curr_matrix[row] = generate_row([0] * matrix_size, matrix_size)
+#         curr_matrix = curr_matrix.T
+#     return matrices_to_mutate
 
 
 def create_mutation(matrices_to_mutate, matrix_size, coordinates_value):
-    for matrix_index, _ in matrices_to_mutate:
+    for matrix, score in matrices_to_mutate:
         for row_idx in range(matrix_size):
             for col_idx in range(matrix_size):
                 random_num = randint(1, 10)
                 # probability of a half to mutation
                 if random_num < 2:
-                    matrix_index[row_idx, col_idx] = randint(1, matrix_size)
+                    matrix[row_idx, col_idx] = randint(1, matrix_size)
                 for number_set in coordinates_value:
-                    matrix_index[number_set[0] - 1, number_set[1] - 1] = number_set[2]
+                    matrix[number_set[0] - 1, number_set[1] - 1] = number_set[2]
     return matrices_to_mutate
 
 
@@ -196,7 +179,7 @@ def create_first_gen(matrix_input, inequality_signs_input):
         score = calculate_mismatch(temp_matrix, inequality_signs_input)
         matrix_and_score_list.append((temp_matrix, score))
 
-    sort_list(matrix_and_score_list)
+    matrix_and_score_list = sort_list(matrix_and_score_list)
     return matrix_and_score_list
 
 
@@ -204,10 +187,10 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
     new_gen_matrices = []
 
     # append the top-10 from the previous generation to the next
-    top_ten_score_matrices = list_of_matrices_and_score[0:10]
+    top_ten_score_matrices = list_of_matrices_and_score[:10]
     new_gen_matrices.extend(top_ten_score_matrices)
 
-    forty_top_score_matrices = list_of_matrices_and_score[0:40]
+    forty_top_score_matrices = list_of_matrices_and_score[:40]
 
     hybrid_top_ten_matrices = hybridization(top_ten_score_matrices, matrix_size, inequality_signs_input)
     hybrid_top_forty_matrices = hybridization(forty_top_score_matrices, matrix_size, inequality_signs_input)
@@ -218,48 +201,73 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
     new_gen_matrices.extend(create_mutation(hybrid_top_forty_matrices, matrix_size, coordinates_value))
     new_gen_matrices.extend(create_mutation(hybrid_top_forty_matrices_2, matrix_size, coordinates_value))
 
+    # total:
+    # 10 from the generation before
+    # 90 created by hybridization
+    # ---------------------
+    # 100 new matrix for next generation
+
     result_matrices_with_score = []
-    for mutation_matrix, _ in new_gen_matrices:
-        score = calculate_mismatch(mutation_matrix, inequality_signs_input)
-        result_matrices_with_score.append((mutation_matrix, score))
-        # print(result_matrices_with_score)
+    for mutation_matrix, score in new_gen_matrices:
+        new_score = calculate_mismatch(mutation_matrix, inequality_signs_input)
+        result_matrices_with_score.append((mutation_matrix, new_score))
     result_matrices_with_score = sort_list(result_matrices_with_score)
     return result_matrices_with_score
 
 
 def problem_of_convergence(curr_generation):
     for i in range(100):
-        curr_generation = create_mutation(matrices_to_mutate=curr_generation, matrix_size=matrix_size,
+        curr_generation = create_mutation(matrices_to_mutate=curr_generation, matrix_size=matrix_dim,
                                           coordinates_value=coordinates_values_given_numbers)
     return curr_generation
 
 
 if __name__ == "__main__":
-    matrix_size, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
-    base_matrix = build_matrix(matrix_size, coordinates_values_given_numbers)
+    matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
+    base_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
     first_gen = create_first_gen(base_matrix, inequality_signs)
-    new_gen_score_list = create_new_generation(first_gen, matrix_size, inequality_signs,
-                                               coordinates_values_given_numbers)
+    new_generation_matrix_score = create_new_generation(first_gen, matrix_dim, inequality_signs,
+                                                        coordinates_values_given_numbers)
 
-    for i in range(0, 200):
-        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,
-                                                   coordinates_values_given_numbers)
-    print('-----------200th generation----------------')
-    pprint(new_gen_score_list)
+    for i in range(200):
+        new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim, inequality_signs,
+                                                            coordinates_values_given_numbers)
+    print('-----------after 200th generation----------------')
+    pprint(new_generation_matrix_score[0])
     print('----------------------------------')
-    new_gen_score_list = problem_of_convergence(new_gen_score_list)
-    print('-----------after solve convergence---------------')
+    new_generation_matrix_score = disrupt_generation(matrices_to_mutate=new_generation_matrix_score,
+                                                     matrix_size=matrix_dim,
+                                                     coordinates_value=coordinates_values_given_numbers)
+    print('-----------solve convergence---------------')
+
+    for i in range(200):
+        new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim, inequality_signs,
+                                                            coordinates_values_given_numbers)
+    print('-----------after 400th generation----------------')
+    pprint(new_generation_matrix_score[0])
     print('----------------------------------')
-    for i in range(0, 200):
-        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,
-                                                   coordinates_values_given_numbers)
-    print('-----------400th generation----------------')
-    pprint(new_gen_score_list)
-    new_gen_score_list = problem_of_convergence(new_gen_score_list)
-    print('-----------after solve convergence---------------')
+    new_generation_matrix_score = disrupt_generation(matrices_to_mutate=new_generation_matrix_score,
+                                                     matrix_size=matrix_dim,
+                                                     coordinates_value=coordinates_values_given_numbers)
+    print('-----------solve convergence---------------')
+
+    for i in range(200):
+        new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim, inequality_signs,
+                                                            coordinates_values_given_numbers)
+    print('-----------after 600th generation----------------')
+    pprint(new_generation_matrix_score[0])
     print('----------------------------------')
-    for i in range(0, 200):
-        new_gen_score_list = create_new_generation(new_gen_score_list, matrix_size, inequality_signs,
-                                                   coordinates_values_given_numbers)
-    print('-----------600th generation----------------')
-    pprint(new_gen_score_list)
+    new_generation_matrix_score = disrupt_generation(matrices_to_mutate=new_generation_matrix_score,
+                                                     matrix_size=matrix_dim,
+                                                     coordinates_value=coordinates_values_given_numbers)
+    print('-----------solve convergence---------------')
+
+    for i in range(200):
+        new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim, inequality_signs,
+                                                            coordinates_values_given_numbers)
+    print('-----------after 800th generation----------------')
+    pprint(new_generation_matrix_score[0])
+    print('----------------------------------')
+    new_generation_matrix_score = disrupt_generation(matrices_to_mutate=new_generation_matrix_score,
+                                                     matrix_size=matrix_dim,
+                                                     coordinates_value=coordinates_values_given_numbers)
