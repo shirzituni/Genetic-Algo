@@ -5,7 +5,7 @@ from random import randint
 
 NUMBER_OF_DIGITS_ROW = 2
 
-
+# get the data from the input file
 def get_data(path):
     with open(path) as f:
         lines = f.readlines()
@@ -29,14 +29,14 @@ def get_data(path):
 
     return matrix_size, coordinates_values, inequality_signs_input
 
-
+# build initial matrix
 def build_matrix(matrix_size, coordinates_value):
     matrix = np.zeros(shape=(matrix_size, matrix_size), dtype='int')
     for number_set in coordinates_value:
         matrix[number_set[0] - 1, number_set[1] - 1] = number_set[2]
     return matrix
 
-
+# generate one row
 def generate_row(row, n):
     digits = [i for i in range(1, n + 1)]
     matrix_dim = row.size
@@ -53,16 +53,16 @@ def generate_row(row, n):
         empty_indexes.remove(index)
     return row
 
-
+# sort the list of tuples: matrices and score by theirs score
 def sort_list(input_list):
     return sorted(input_list, key=lambda x: x[1])
 
-
+# calculate number of mismatch between our solution and the desire solution
 def calculate_mismatch(matrix_input, inequality_signs_input):
     return calculate_incorrect_inequality_signs(matrix_input, inequality_signs_input) + \
            calculate_duplicates_row_col(matrix_input)
 
-
+# calculate the number of the mismatch between the matrix and the inequality signs that was in the input file
 def calculate_incorrect_inequality_signs(matrix_input, inequality_signs_input):
     incorrect = 0
     for number_set in inequality_signs_input:
@@ -70,7 +70,7 @@ def calculate_incorrect_inequality_signs(matrix_input, inequality_signs_input):
             incorrect += 1
     return incorrect
 
-
+# calculate the number of the duplicates number in each row and each column
 def calculate_duplicates_row_col(matrix_input):
     duplicates_in_rows = [len(matrix_input[i]) - len(np.unique(matrix_input[i])) for i in range(matrix_input[0].size)]
     matrix_t = matrix_input.transpose()
@@ -84,8 +84,11 @@ def calculate_duplicates_row_col(matrix_input):
         total_duplicates += duplicate
 
     return total_duplicates
-
-
+'''
+cross over between two matrices -
+by taking one matrix to be the father and the other one to be the mother.
+the rows in the new matrix are generate randomaly from each of them. 
+'''
 def cross_over(list_of_matrices, matrix_size_input, inequality_signs_input):
     result_matrices = []
     for i in range(len(list_of_matrices)):
@@ -106,7 +109,7 @@ def cross_over(list_of_matrices, matrix_size_input, inequality_signs_input):
         result_matrices.append((new_matrix_hybridization_from_top_ten, score))
     return result_matrices
 
-
+# solve the problem of convergence
 def solve_problem(curr_generation, coordinates_values_given_numbers, inequality_signs):
     """
     # 30 pick best
@@ -128,7 +131,7 @@ def solve_problem(curr_generation, coordinates_values_given_numbers, inequality_
                                       inequality_signs_input=inequality_signs))
     return sort_list(next_generation)
 
-
+# create mutation in order to improve to the next generation
 def create_mutation(matrices_to_mutate, matrix_size, coordinates_value):
     for matrix, score in matrices_to_mutate:
         for row_idx in range(matrix_size):
@@ -141,7 +144,7 @@ def create_mutation(matrices_to_mutate, matrix_size, coordinates_value):
                     matrix[number_set[0] - 1, number_set[1] - 1] = number_set[2]
     return matrices_to_mutate
 
-
+# create the first generation
 def create_first_gen(matrix_input, inequality_signs_input):
     matrix_and_score_list = []
     boards = []
@@ -156,7 +159,7 @@ def create_first_gen(matrix_input, inequality_signs_input):
     matrix_and_score_list = sort_list(matrix_and_score_list)
     return matrix_and_score_list
 
-
+# create new generation
 def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_signs_input, test_type):
     new_gen_matrices = []
 
@@ -199,7 +202,7 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
         result_matrices_with_score = sort_list(result_matrices_with_score)
     return result_matrices_with_score
 
-
+# create optimization for the result by swapping the position with the adjacent one
 def optimize_result(matrixes, inequality_signs, matrix_dim):
     if type(matrixes) == tuple:
         matrix_to_fix = matrixes[0]
@@ -224,7 +227,7 @@ def optimize_result(matrixes, inequality_signs, matrix_dim):
                 score = calculate_mismatch(matrix_to_fix, inequality_signs)
         return matrixes
 
-
+# question 1.1
 def regular_genetic():
     # read the input
     matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
@@ -251,7 +254,7 @@ def regular_genetic():
                                                     inequality_signs)
         print('------------after solve problem of convergence-------------------')
 
-
+# question 1.2.2
 def darvini_genetic():
     # read the input
     matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
@@ -281,7 +284,7 @@ def darvini_genetic():
     matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
     pprint(matrix_after_optimize)
 
-
+# question 1.2.3
 def lemarci_genetic():
     # read the input
     matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
