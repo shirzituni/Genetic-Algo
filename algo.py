@@ -242,14 +242,14 @@ def regular_genetic():
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'regular_genetic')
-        print('-----------after 300th generation----------------')
+        print('-----------after 300th generations----------------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
         print('-------------------------------------------------')
-        print('------------trying to solver problem of convergence---------------')
+        print('------------trying to solve problem of convergence---------------')
         new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
                                                     inequality_signs)
-        print('------------after solver problem of convergence-------------------')
+        print('------------after solve problem of convergence-------------------')
 
 
 def darvini_genetic():
@@ -268,14 +268,14 @@ def darvini_genetic():
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'darvini_genetic')
-        print('-----------after 300th generation----------------')
+        print('-----------after 300th generations----------------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
         print('-------------------------------------------------')
-        print('------------trying to solver problem of convergence---------------')
+        print('------------trying to solve problem of convergence---------------')
         new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
                                                     inequality_signs)
-        print('------------after solver problem of convergence-------------------')
+        print('------------after solve problem of convergence-------------------')
 
     final_matrix = new_generation_matrix_score[0]
     matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
@@ -299,14 +299,14 @@ def lemarci_genetic():
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'lemarci_genetic')
-        print('-----------after 300th generation----------------')
+        print('-----------after 300th generations----------------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
         print('-------------------------------------------------')
-        print('------------trying to solver problem of convergence---------------')
+        print('------------trying to solve problem of convergence---------------')
         new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
                                                     inequality_signs)
-        print('------------after solver problem of convergence-------------------')
+        print('------------after solve problem of convergence-------------------')
 
     final_matrix = new_generation_matrix_score[0]
     matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
