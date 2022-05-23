@@ -4,6 +4,7 @@ import numpy as np
 from random import randint
 import sys
 import matplotlib.pyplot as plt
+import sys
 
 scores_per_generation = []
 dictionary = {}
