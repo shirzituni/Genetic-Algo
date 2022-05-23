@@ -11,6 +11,8 @@ dictionary = {}
 
 NUMBER_OF_DIGITS_ROW = 2
 number_of_iter = 0
+iter_num = 0
+iter_score = 0
 
 
 # get the data from the input file
@@ -227,9 +229,9 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
 
 
 # create optimization for the result by swapping the position with the adjacent one
-def optimize_result(matrixes, inequality_signs, matrix_dim):
-    if type(matrixes) == tuple:
-        matrix_to_fix = matrixes[0]
+def optimize_result(matrices, inequality_signs, matrix_dim):
+    if type(matrices) == tuple:
+        matrix_to_fix = matrices[0]
         for rule in inequality_signs:
             row1, col1, row2, col2 = rule
             if matrix_to_fix[row1 - 1][col1 - 1] < matrix_to_fix[row2 - 1][col2 - 1]:
@@ -237,10 +239,10 @@ def optimize_result(matrixes, inequality_signs, matrix_dim):
                 matrix_to_fix[row1 - 1][col1 - 1] = matrix_to_fix[row2 - 1][col2 - 1]
                 matrix_to_fix[row2 - 1][col2 - 1] = temp
         score = calculate_mismatch(matrix_to_fix, inequality_signs)
-        return matrixes
+        return matrices
     else:
         for curr_round in range(matrix_dim):
-            for matrix_score in matrixes:
+            for matrix_score in matrices:
                 matrix_to_fix, score = matrix_score
                 for rule in inequality_signs:
                     row1, col1, row2, col2 = rule
@@ -249,7 +251,7 @@ def optimize_result(matrixes, inequality_signs, matrix_dim):
                         matrix_to_fix[row1 - 1][col1 - 1] = matrix_to_fix[row2 - 1][col2 - 1]
                         matrix_to_fix[row2 - 1][col2 - 1] = temp
                 score = calculate_mismatch(matrix_to_fix, inequality_signs)
-        return matrixes
+        return matrices
 
 
 # question 1.1
@@ -271,6 +273,7 @@ def regular_genetic():
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'regular_genetic')
+        dictionary[number_of_iter] = new_generation_matrix_score[0][1]
         print('-----------after ', loop * num_of_runs, 'th generations----------------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
@@ -283,15 +286,12 @@ def regular_genetic():
                                                                 coordinates_values_given_numbers,
                                                                 inequality_signs)
         print('------------after solve problem of convergence-------------------')
-
+    global iter_num
     iter_num = dictionary.keys()
+    global iter_score
     iter_score = dictionary.values()
+    return iter_num, iter_score
 
-    plt.plot(iter_num, iter_score)
-    plt.xlabel('x - iter num')
-    plt.ylabel('y - iter score')
-
-    plt.title('Regular genetic algorithm!')
 
 # question 1.2.2
 def darvini_genetic():
@@ -312,6 +312,7 @@ def darvini_genetic():
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'darvini_genetic')
+        dictionary[number_of_iter] = new_generation_matrix_score[0][1]
         print('-----------after, ', loop * num_of_runs, 'th generations---------')
         dictionary[number_of_iter] = new_generation_matrix_score[0][1]
         # ===========================================================
@@ -327,18 +328,16 @@ def darvini_genetic():
                                                                 inequality_signs)
         print('------------after solve problem of convergence-------------------')
 
-     # create graphs
-    iter_num = dictionary.keys()
-    iter_score = dictionary.values()
-
-    plt.plot(iter_num, iter_score)
-    plt.xlabel('x - iter num')
-    plt.ylabel('y - iter score')
-
     plt.title('Darvini genetic algorithm!')
     final_matrix = new_generation_matrix_score[0]
     matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
     pprint(matrix_after_optimize)
+
+    global iter_num
+    iter_num = dictionary.keys()
+    global iter_score
+    iter_score = dictionary.values()
+    return iter_num, iter_score
 
 
 # question 1.2.3
@@ -360,6 +359,7 @@ def lemarci_genetic():
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'lemarci_genetic')
+        dictionary[number_of_iter] = new_generation_matrix_score[0][1]
         print('-----------after, ', loop * num_of_runs, 'th generations----------------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
@@ -368,34 +368,37 @@ def lemarci_genetic():
             return
         print('------------------------------------------------------------------------')
         print('------------trying to solve problem of convergence----------------------')
-        new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
-                                                    inequality_signs)
+        new_generation_matrix_score = solve_convergence_problem(new_generation_matrix_score,
+                                                                coordinates_values_given_numbers,
+                                                                inequality_signs)
         print('------------after solve problem of convergence--------------------------')
 
-    # ===========================================================
-    # create graphs
+    final_matrix = new_generation_matrix_score[0]
+    matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
+    pprint(matrix_after_optimize)
 
+    global iter_num
     iter_num = dictionary.keys()
+    global iter_score
     iter_score = dictionary.values()
+    return iter_num, iter_score
 
+
+def create_graphs():
     plt.plot(iter_num, iter_score)
     plt.xlabel('x - iter num')
     plt.ylabel('y - iter score')
 
-    plt.title('Lemarci genetic algorithm!')
-    # ===========================================================
-    final_matrix = new_generation_matrix_score[0]
-    matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
-    pprint(matrix_after_optimize)
-    print(dictionary)
+    plt.title(sys.argv[2] + ' genetic algorithm!')
+    plt.show()
 
 
 if __name__ == "__main__":
 
     if sys.argv[2] == 'regular':
-        regular_genetic()
+        iter_num, iter_score = regular_genetic()
     if sys.argv[2] == 'darvini':
         darvini_genetic()
     if sys.argv[2] == 'lemarci':
         lemarci_genetic()
-
+    create_graphs()
