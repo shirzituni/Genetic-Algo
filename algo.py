@@ -2,6 +2,7 @@ import random
 from pprint import pprint
 import numpy as np
 from random import randint
+import sys
 
 NUMBER_OF_DIGITS_ROW = 2
 
@@ -229,26 +230,30 @@ def optimize_result(matrixes, inequality_signs, matrix_dim):
 
 # question 1.1
 def regular_genetic():
+    print('Starting regular genetic algorithm!')
     # read the input
-    matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
+    matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data(sys.argv[1])
     # build base matrix and first generation
     base_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
     first_gen = create_first_gen(base_matrix, inequality_signs)
 
     # create 2nd generation
-    new_generation_matrix_score = create_new_generation(first_gen, matrix_dim, inequality_signs)
+    new_generation_matrix_score = create_new_generation(first_gen, matrix_dim, inequality_signs, 'regular_genetic')
 
     # run regular genetic algorithm with solving the convergence problem
-    num_of_rounds = 4
-    num_of_runs = 300
+    num_of_rounds = 200
+    num_of_runs = 10
     for loop in range(num_of_rounds):
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'regular_genetic')
-        print('-----------after 300th generations----------------')
+        print('-----------after ', loop * num_of_runs, 'th generations----------------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
-        print('-------------------------------------------------')
+        # if we find a solution, stop
+        if new_generation_matrix_score[0][1] == 0:
+            return
+        print('-----------------------------------------------------------------')
         print('------------trying to solve problem of convergence---------------')
         new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
                                                     inequality_signs)
@@ -256,8 +261,9 @@ def regular_genetic():
 
 # question 1.2.2
 def darvini_genetic():
+    print('Starting darvini algorithm!')
     # read the input
-    matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
+    matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data(sys.argv[1])
     # build base matrix and first generation
     base_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
     first_gen = create_first_gen(base_matrix, inequality_signs)
@@ -265,16 +271,19 @@ def darvini_genetic():
     # create 2nd generation
     new_generation_matrix_score = create_new_generation(first_gen, matrix_dim, inequality_signs, 'darvini_genetic')
     # run darvini genetic algorithm
-    num_of_rounds = 4
-    num_of_runs = 300
+    num_of_rounds = 200
+    num_of_runs = 10
     for loop in range(num_of_rounds):
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'darvini_genetic')
-        print('-----------after 300th generations----------------')
+        print('-----------after, ', loop * num_of_runs, 'th generations---------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
-        print('-------------------------------------------------')
+        # if we find a solution, stop
+        if new_generation_matrix_score[0][1] == 0:
+            return
+        print('-----------------------------------------------------------------')
         print('------------trying to solve problem of convergence---------------')
         new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
                                                     inequality_signs)
@@ -286,8 +295,9 @@ def darvini_genetic():
 
 # question 1.2.3
 def lemarci_genetic():
+    print('Starting lemarci algorithm!')
     # read the input
-    matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data('example.txt')
+    matrix_dim, coordinates_values_given_numbers, inequality_signs = get_data(sys.argv[1])
     # build base matrix and first generation
     base_matrix = build_matrix(matrix_dim, coordinates_values_given_numbers)
     first_gen = create_first_gen(base_matrix, inequality_signs)
@@ -296,20 +306,23 @@ def lemarci_genetic():
     new_generation_matrix_score = create_new_generation(first_gen, matrix_dim, inequality_signs, 'lemarci_genetic')
 
     # run lemarci genetic algorithm
-    num_of_rounds = 4
-    num_of_runs = 300
+    num_of_rounds = 200
+    num_of_runs = 10
     for loop in range(num_of_rounds):
         for gen in range(num_of_runs):
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'lemarci_genetic')
-        print('-----------after 300th generations----------------')
+        print('-----------after, ', loop * num_of_runs, 'th generations----------------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
-        print('-------------------------------------------------')
-        print('------------trying to solve problem of convergence---------------')
+        # if we find a solution, stop
+        if new_generation_matrix_score[0][1] == 0:
+            return
+        print('------------------------------------------------------------------------')
+        print('------------trying to solve problem of convergence----------------------')
         new_generation_matrix_score = solve_problem(new_generation_matrix_score, coordinates_values_given_numbers,
                                                     inequality_signs)
-        print('------------after solve problem of convergence-------------------')
+        print('------------after solve problem of convergence--------------------------')
 
     final_matrix = new_generation_matrix_score[0]
     matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
@@ -317,6 +330,10 @@ def lemarci_genetic():
 
 
 if __name__ == "__main__":
-    # regular_genetic()
-    darvini_genetic()
-    # lemarci_genetic()
+
+    if sys.argv[2] == 'regular':
+        regular_genetic()
+    if sys.argv[2] == 'darvini':
+        darvini_genetic()
+    if sys.argv[2] == 'lemarci':
+        lemarci_genetic()
