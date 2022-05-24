@@ -274,7 +274,7 @@ def regular_genetic():
             new_generation_matrix_score = create_new_generation(new_generation_matrix_score, matrix_dim,
                                                                 inequality_signs, 'regular_genetic')
         dictionary[number_of_iter] = new_generation_matrix_score[0][1]
-        print('-----------after ', loop * num_of_runs, 'th generations----------------')
+        print('-----------after ', (loop + 1) * num_of_runs, 'th generations----------------')
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
         # if we find a solution, stop
