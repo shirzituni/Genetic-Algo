@@ -1,5 +1,5 @@
 # Genetic-Algo
-Running instactions:
+Running instructions:
 - Copy the exe file and put it in a folder.
 - In the same folder, put the input txt file.
 - Choose the algorithm you want to run by running: regular, darvini or lemarci.
