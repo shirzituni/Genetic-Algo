@@ -211,6 +211,7 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
         ---------------------
         100 new matrix for next generation
     """
+    scores_sum = 0
     if test_type == 'lemarci_genetic':
         after_optimize = optimize_result(new_gen_matrices, inequality_signs_input, matrix_size)
         result_matrices_with_score = []
@@ -218,6 +219,12 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
             new_score = calculate_mismatch(mutation_matrix, inequality_signs_input)
             result_matrices_with_score.append((mutation_matrix, new_score))
         result_matrices_with_score = sort_list(result_matrices_with_score)
+
+        # for the average score
+        for each_tuple in result_matrices_with_score:
+            scores_sum += each_tuple[1]
+
+        # print("The average score in this generation", scores_sum / 100)
         return result_matrices_with_score
     else:
         result_matrices_with_score = []
@@ -225,6 +232,11 @@ def create_new_generation(list_of_matrices_and_score, matrix_size, inequality_si
             new_score = calculate_mismatch(mutation_matrix, inequality_signs_input)
             result_matrices_with_score.append((mutation_matrix, new_score))
         result_matrices_with_score = sort_list(result_matrices_with_score)
+
+        for each_tuple in result_matrices_with_score:
+            scores_sum += each_tuple[1]
+
+        # print("The average score in this generation", scores_sum / 100)
     return result_matrices_with_score
 
 
