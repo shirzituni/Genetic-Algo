@@ -279,18 +279,22 @@ def regular_genetic():
         pprint(new_generation_matrix_score[0])
         # if we find a solution, stop
         if new_generation_matrix_score[0][1] == 0:
-            return
+            global iter_num
+            iter_num = dictionary.keys()
+            global iter_score
+            iter_score = dictionary.values()
+            return iter_num, iter_score
         print('-----------------------------------------------------------------')
         print('------------trying to solve problem of convergence---------------')
         new_generation_matrix_score = solve_convergence_problem(new_generation_matrix_score,
                                                                 coordinates_values_given_numbers,
                                                                 inequality_signs)
         print('------------after solve problem of convergence-------------------')
-    global iter_num
+
     iter_num = dictionary.keys()
-    global iter_score
     iter_score = dictionary.values()
     return iter_num, iter_score
+
 
 
 # question 1.2.2
@@ -318,24 +322,24 @@ def darvini_genetic():
         # ===========================================================
         # pprint will print the matrix in readable way
         pprint(new_generation_matrix_score[0])
-        # if we find a solution, stop
         if new_generation_matrix_score[0][1] == 0:
-            return
+            global iter_num
+            iter_num = dictionary.keys()
+            global iter_score
+            iter_score = dictionary.values()
+            return iter_num, iter_score
         print('-----------------------------------------------------------------')
         print('------------trying to solve problem of convergence---------------')
         new_generation_matrix_score = solve_convergence_problem(new_generation_matrix_score,
                                                                 coordinates_values_given_numbers,
                                                                 inequality_signs)
         print('------------after solve problem of convergence-------------------')
-
-    plt.title('Darvini genetic algorithm!')
+        pprint(new_generation_matrix_score[0])
     final_matrix = new_generation_matrix_score[0]
     matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
     pprint(matrix_after_optimize)
 
-    global iter_num
     iter_num = dictionary.keys()
-    global iter_score
     iter_score = dictionary.values()
     return iter_num, iter_score
 
@@ -365,21 +369,23 @@ def lemarci_genetic():
         pprint(new_generation_matrix_score[0])
         # if we find a solution, stop
         if new_generation_matrix_score[0][1] == 0:
-            return
+            global iter_num
+            iter_num = dictionary.keys()
+            global iter_score
+            iter_score = dictionary.values()
+            return iter_num, iter_score
         print('------------------------------------------------------------------------')
         print('------------trying to solve problem of convergence----------------------')
         new_generation_matrix_score = solve_convergence_problem(new_generation_matrix_score,
                                                                 coordinates_values_given_numbers,
                                                                 inequality_signs)
         print('------------after solve problem of convergence--------------------------')
-
+        pprint(new_generation_matrix_score[0])
     final_matrix = new_generation_matrix_score[0]
     matrix_after_optimize = optimize_result(final_matrix, inequality_signs, matrix_dim)
     pprint(matrix_after_optimize)
 
-    global iter_num
     iter_num = dictionary.keys()
-    global iter_score
     iter_score = dictionary.values()
     return iter_num, iter_score
 
@@ -398,7 +404,11 @@ if __name__ == "__main__":
     if sys.argv[2] == 'regular':
         iter_num, iter_score = regular_genetic()
     if sys.argv[2] == 'darvini':
-        darvini_genetic()
+        iter_num, iter_score = darvini_genetic()
     if sys.argv[2] == 'lemarci':
-        lemarci_genetic()
-    create_graphs()
+        iter_num, iter_score = lemarci_genetic()
+
+    if sys.argv[2] == 'lemarci' or sys.argv[2] == 'darvini' or sys.argv[2] == 'regular':
+        create_graphs()
+    else:
+        print("Invalid algorithm name input, try again")
